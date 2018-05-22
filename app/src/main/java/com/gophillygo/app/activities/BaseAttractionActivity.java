@@ -27,7 +27,7 @@ import javax.inject.Inject;
 
 /**
  * Base activity that requests last known location and destination data when opened;
- * when destinations are loaded, and thereafter if location changes, updates the distances to the
+ * if either change, updates the distances to the destinations and calls
  * destinations and calls `locationsOrDestinationsChanged`.
  */
 public abstract class BaseAttractionActivity extends AppCompatActivity
@@ -100,11 +100,6 @@ public abstract class BaseAttractionActivity extends AppCompatActivity
             Log.d(LOG_LABEL, "Got destination data");
             nearestDestinations = findNearestDestinations();
             locationOrDestinationsChanged();
-
-            // The list and map activities allow updating AttractionFlag of each attraction
-            // We need to stop listening after we get the initial list of destinations or changes the flags
-            // will cause the list of destinations to change, which causes unwanted refreshes of the view(s)
-            data.removeObservers(this);
         });
     }
 
@@ -177,10 +172,8 @@ public abstract class BaseAttractionActivity extends AppCompatActivity
         Log.d(LOG_LABEL, "location found: " + location.toString());
         currentLocation = location;
         locationHasChanged = true;
-        if (destinationInfos != null) {
-            nearestDestinations = findNearestDestinations();
-            locationOrDestinationsChanged();
-        }
+        nearestDestinations = findNearestDestinations();
+        locationOrDestinationsChanged();
     }
 
     /**
